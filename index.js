@@ -1,8 +1,11 @@
 //invokes inquirer
 const inquirer = require('inquirer');
+
 //invokes mysql2
+//todo do i need to establish a connection on this for my functions below?
 const mysql = require('mysql2');
 
+//after running node index.js
 const homePage = [
     {
         type: 'checkbox',
@@ -35,8 +38,8 @@ const homePage = [
             }]
         }];
 
+//adding an employee
 const employeeAddQuestions = [
-        //adding employee
         {
             type: 'input',
             name: 'employee-first-name',
@@ -90,8 +93,8 @@ const employeeAddQuestions = [
                 }]
         }];
 
+//updating employee roles
 const updateRoleQuestion = [
-        //updating employee role
         {
             type: 'checkbox',
             name: 'update-role',
@@ -103,16 +106,16 @@ const updateRoleQuestion = [
             ]
         }];
 
+//adding departments
 const departmentQuestions = [
-        //adding department
         {
             type: 'input',
             name: 'add-dept',
             message: 'What is the name of this department?',
         }];
 
+//adding roles
 const roleQuestions = [
-        //adding role
         {
             type: 'input',
             name: 'add-role',
@@ -148,12 +151,18 @@ function homePagePrompt() {
 
 homePagePrompt();
 
+//i think this might be close to what needs to be done?
 function viewData() {
     if (homePage.choices === "View All Employees") {
-        db.query(SELECT * FROM employee)
+        db.query("SELECT * FROM employee");
+    } else if (homePage.choices === "View All Roles") {
+        db.query("SELECT * FROM role");
+    } else if (homePage.choices === "View All Departments") {
+        db.query("SELECT * FROM department")
     }
-}
+};
 
+//to call later?
 function employeeAddPrompts() {
     return inquirer.prompt(employeeAddQuestions);
     };
@@ -169,6 +178,9 @@ function departmentPrompt() {
 function rolePrompts() {
     return inquirer.prompt(roleQuestions);
     };
+
+
+/************************************************************************/
 
 // function addEmployee () {
 //     if (questions.choices === 'Add Employee') {
