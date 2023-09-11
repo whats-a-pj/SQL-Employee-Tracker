@@ -2,13 +2,24 @@
 const inquirer = require('inquirer');
 
 //invokes mysql2
-//todo do i need to establish a connection on this for my functions below?
 const mysql = require('mysql2');
+
+//so that my sql password is confidential
+require('dotenv').config();
+
+//establishing mysql connection with .env
+const sqlConnection = mysql.createConnection({
+    host: '127.0.0.1',
+    port: 3306,
+    user: 'root',
+    password: process.env.DB_PASSWORD,
+    database: 'company_db',
+});
 
 //after running node index.js
 const homePage = [
     {
-        type: 'checkbox',
+        type: 'list',
         name: 'employee-tracker',
         message: 'What would you like to do?',
         choices: [
@@ -51,7 +62,7 @@ const employeeAddQuestions = [
             message: 'Add their last name'
         },
         {
-            type: 'checkbox',
+            type: 'list',
             name: 'employee-role',
             message: 'What is the employees role?',
             choices: [
@@ -75,7 +86,7 @@ const employeeAddQuestions = [
                 }]
         },
         {
-            type: 'checkbox',
+            type: 'list',
             name: 'manager',
             message: 'Who will this employee report to?',
             choices: [
@@ -94,9 +105,9 @@ const employeeAddQuestions = [
         }];
 
 //updating employee roles
-const updateRoleQuestion = [
+const updateRoleQuestions = [
         {
-            type: 'checkbox',
+            type: 'list',
             name: 'update-role',
             message: 'Which employees role needs to be changed?',
             choices: [
@@ -127,7 +138,7 @@ const roleQuestions = [
             message: 'What is the salary for this role?',
         },
         {
-            type: 'checkbox',
+            type: 'list',
             name: 'role-dept',
             message: 'Which department does this role belong to?',
             choices: [
@@ -146,41 +157,59 @@ const roleQuestions = [
         }];
 
 function homePagePrompt() {
+console.log(`
+..________________________________________________________________________..
+||                                                                        ||
+||  ███████╗███╗   ███╗██████╗ ██╗      ██████╗ ██╗   ██╗███████╗███████╗ ||
+||  ██╔════╝████╗ ████║██╔══██╗██║     ██╔═══██╗╚██╗ ██╔╝██╔════╝██╔════╝ ||
+||  █████╗  ██╔████╔██║██████╔╝██║     ██║   ██║ ╚████╔╝ █████╗  █████╗   ||
+||  ██╔══╝  ██║╚██╔╝██║██╔═══╝ ██║     ██║   ██║  ╚██╔╝  ██╔══╝  ██╔══╝   ||
+||  ███████╗██║ ╚═╝ ██║██║     ███████╗╚██████╔╝   ██║   ███████╗███████╗ ||
+||  ███╗═══███╗ █████╗╝███╗   ██╗═█████╗╚═██████╗ ███████╗██████╗╚══════╝ ||
+||  ████╗ ████║██╔══██╗████╗  ██║██╔══██╗██╔════╝ ██╔════╝██╔══██╗        ||
+||  ██╔████╔██║███████║██╔██╗ ██║███████║██║  ███╗█████╗  ██████╔╝        ||
+||  ██║╚██╔╝██║██╔══██║██║╚██╗██║██╔══██║██║   ██║██╔══╝  ██╔══██╗        ||
+||  ██║ ╚═╝ ██║██║  ██║██║ ╚████║██║  ██║╚██████╔╝███████╗██║  ██║        ||
+||  ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝        ||
+|..______________________________________________________________________..|
+`);
     return inquirer.prompt(homePage);
+function viewData() {
+    if (homePage.choices === "View All Employees") {
+        sqlConnection.query(`SELECT * FROM employee`);
+    } else if (homePage.choices === "View All Roles") {
+        sqlConnection.query(`SELECT * FROM role`);
+    } else if (homePage.choices === "View All Departments") {
+        sqlConnection.query(`SELECT * FROM department`);
+    } else {
+        addData();
     };
+}};
 
 homePagePrompt();
 
-//i think this might be close to what needs to be done?
-function viewData() {
-    if (homePage.choices === "View All Employees") {
-        db.query("SELECT * FROM employee");
-    } else if (homePage.choices === "View All Roles") {
-        db.query("SELECT * FROM role");
-    } else if (homePage.choices === "View All Departments") {
-        db.query("SELECT * FROM department")
+function addData() {
+    if (homePage.choices === "Add Employee") {
+        inquirer.prompt(employeeAddQuestions);
+        sqlConnection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`);
+        console.log(`Added ${first_name} ${last_name} to database`);
+    } else if (homePage.choices === "Add Role") {
+        inquirer.prompt(roleQuestions);
+        sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES (?, ?, ?)`);
+        console.log(`Added ${role_title} & salary to database`);
+    } else if (homePage.choices === "Add Department") {
+        inquirer.prompt(departmentQuestions);
+        sqlConnection.query(`INSERT INTO department (dept_name) VALUES (?)`);
+        console.log(`Added ${dept_name} to database`);
+    } else {
+        inquirer.prompt(updateRoleQuestions);
+        sqlConnection.query(`INSERT INTO employee (role_id) VALUES (?)`);
+        console.log(`Updated employee role to ${role_title} in database`);
     }
 };
 
-//to call later?
-function employeeAddPrompts() {
-    return inquirer.prompt(employeeAddQuestions);
-    };
 
-function updateRolePrompt() {
-    return inquirer.prompt(updateRoleQuestion);
-    };
-
-function departmentPrompt() {
-    return inquirer.prompt(departmentQuestions);
-    };
-
-function rolePrompts() {
-    return inquirer.prompt(roleQuestions);
-    };
-
-
-/************************************************************************/
+/**************************************************************************/
 
 // function addEmployee () {
 //     if (questions.choices === 'Add Employee') {
