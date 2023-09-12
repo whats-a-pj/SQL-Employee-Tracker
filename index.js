@@ -207,7 +207,7 @@ inquirer.prompt(homePage).then(answers => {
         `)
         sqlConnection.end();
 } else {
-        addData();
+        addData(answers.employeeTracker);
     }
 });
 };
@@ -215,11 +215,18 @@ inquirer.prompt(homePage).then(answers => {
 //calls the function above when they type node index.js into terminal
 homePagePrompt();
 
+//todo pass answers.employeeTracker to addData()
+
+//todo deconstruct the [object Object] into its own STRING variable ${newEmployee} parse it?
+
+//todo finish updateRoleQuestions
+
 //if user wants to add data, this will run via the else statement in homePagePrompt()
-function addData() {
+function addData(/*answers.employeeTracker*/) {
 if (answers.employeeTracker === "Add Employee") {
     inquirer.prompt(employeeAddQuestions).then(answers => {
-    sqlConnection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (${answers})`, (err, result) => {
+        // var newEmployee = answers.employeeAddQuestions;
+    sqlConnection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (`/*${newEmployee}*/`)`, (err, result) => {
         if(err) {console.log(err)};
         console.table(result);
         console.log(`Added new employee to database`);
@@ -227,7 +234,7 @@ if (answers.employeeTracker === "Add Employee") {
 });
 } else if (answers.employeeTracker === "Add Role") {
     inquirer.prompt(roleQuestions).then(answers => {
-    sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES (${answers})`, (err, result) => {
+    sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES (`/*${answers}*/`)`, (err, result) => {
         if(err) {console.log(err)};
         console.table(result);
         console.log(`Added new role & salary to database`);
@@ -235,7 +242,7 @@ if (answers.employeeTracker === "Add Employee") {
 });
 } else if (answers.employeeTracker === "Add Department") {
     inquirer.prompt(departmentQuestions).then(answers => {
-    sqlConnection.query(`INSERT INTO department (dept_name) VALUES (${answers})`, (err, result) => {
+    sqlConnection.query(`INSERT INTO department (dept_name) VALUES (`/*${answers}*/`)`, (err, result) => {
         if(err) {console.log(err)};
         console.table(result);
         console.log(`Added new department to database`);
@@ -243,7 +250,7 @@ if (answers.employeeTracker === "Add Employee") {
 });
 } else {
     inquirer.prompt(updateRoleQuestions).then(answers => {
-    sqlConnection.query(`INSERT INTO employee (role_id) VALUES (${answers})`, (err, result) => {
+    sqlConnection.query(`UPDATE employee SET (role_id) WHERE employee(id) = (`/*${answers}*/`)`, (err, result) => {
         if(err) {console.log(err)};
         console.table(result);
         console.log(`Updated employee role in database`);
