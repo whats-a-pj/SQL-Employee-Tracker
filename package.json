@@ -3,6 +3,9 @@
 "dependencies": {
     
     
+"console.table": "^0.10.0",
+    
+    
 "dotenv": "^16.3.1",
     
     

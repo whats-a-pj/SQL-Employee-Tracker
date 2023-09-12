@@ -7,6 +7,9 @@ const mysql = require('mysql2');
 //so that my sql password is confidential
 require('dotenv').config();
 
+//invokes console.table so that info prints to the tables??
+const cTable = require('console.table');
+
 //establishing mysql connection with .env
 const sqlConnection = mysql.createConnection({
     host: '127.0.0.1',
@@ -20,7 +23,7 @@ const sqlConnection = mysql.createConnection({
 const homePage = [
     {
         type: 'list',
-        name: 'employee-tracker',
+        name: 'employeeTracker',
         message: 'What would you like to do?',
         choices: [
             {
@@ -173,43 +176,117 @@ console.log(`
 ||  ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝        ||
 |..______________________________________________________________________..|
 `);
-    return inquirer.prompt(homePage);
-function viewData() {
-    if (homePage.choices === "View All Employees") {
-        sqlConnection.query(`SELECT * FROM employee`);
-    } else if (homePage.choices === "View All Roles") {
-        sqlConnection.query(`SELECT * FROM role`);
-    } else if (homePage.choices === "View All Departments") {
-        sqlConnection.query(`SELECT * FROM department`);
+inquirer.prompt(homePage).then(answers => {
+    if (answers.employeeTracker === "View All Employees") {
+        console.log('hit or sumthin like that')
+        sqlConnection.query(`SELECT * FROM employee`, (err, result) => {
+            if(err) {console.log(err)};
+            console.table(result);
+        });
+    } else if (answers.employeeTracker === "View All Roles") {
+        sqlConnection.query(`SELECT * FROM role`, (err, result) => {
+            console.table(result);
+        });
+    } else if (answers.employeeTracker === "View All Departments") {
+        sqlConnection.query(`SELECT * FROM department`, (err, result) => {
+            if(err) {console.log(err)};
+            console.table(result);
+        });
     } else {
         addData();
-    };
-}};
+    }
+});
+};
+
+//todo create .then() on each instance of inquirer.prompt
+//todo make things async somehow :') i believe the .then is the async tho
 
 homePagePrompt();
 
 function addData() {
-    if (homePage.choices === "Add Employee") {
-        inquirer.prompt(employeeAddQuestions);
-        sqlConnection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`);
-        console.log(`Added ${first_name} ${last_name} to database`);
-    } else if (homePage.choices === "Add Role") {
-        inquirer.prompt(roleQuestions);
-        sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES (?, ?, ?)`);
-        console.log(`Added ${role_title} & salary to database`);
-    } else if (homePage.choices === "Add Department") {
-        inquirer.prompt(departmentQuestions);
-        sqlConnection.query(`INSERT INTO department (dept_name) VALUES (?)`);
-        console.log(`Added ${dept_name} to database`);
+    if (answers.employeeTracker === "Add Employee") {
+        inquirer.prompt(employeeAddQuestions).then(answers => {
+        sqlConnection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, (err, result) => {
+            if(err) {console.log(err)};
+            console.table(result);
+            console.log(`Added ${first_name} ${last_name} to database`);
+        });
+    });
+    } else if (answers.employeeTracker === "Add Role") {
+        inquirer.prompt(roleQuestions).then(answers => {
+        sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES (?, ?, ?)`, (err, result) => {
+            if(err) {console.log(err)};
+            console.table(result);
+            console.log(`Added ${role_title} & salary to database`);
+        });
+    });
+    } else if (answers.employeeTracker === "Add Department") {
+        inquirer.prompt(departmentQuestions).then(answers => {
+        sqlConnection.query(`INSERT INTO department (dept_name) VALUES (?)`, (err, result) => {
+            if(err) {console.log(err)};
+            console.table(result);
+            console.log(`Added ${dept_name} to database`);
+        });
+    });
     } else {
-        inquirer.prompt(updateRoleQuestions);
-        sqlConnection.query(`INSERT INTO employee (role_id) VALUES (?)`);
-        console.log(`Updated employee role to ${role_title} in database`);
+        inquirer.prompt(updateRoleQuestions).then(answers => {
+        sqlConnection.query(`INSERT INTO employee (role_id) VALUES (?)`, (err, result) => {
+            if(err) {console.log(err)};
+            console.table(result);
+            console.log(`Updated employee role to ${role_title} in database`);
+        });
+    });
     }
 };
 
 
 /**************************************************************************/
+
+
+// const homePage = () => {
+//     inquirer.createPromptModule({
+//         type: 'list',
+//         name: 'employeeTracker',
+//         message: 'What would you like to do?',
+//         choices: [
+//             {name: 'View All Employees'},
+//             {name: 'Add Employee'},
+//             {name: 'Update Employee Role'},
+//             {name: 'View All Roles'},
+//             {name: 'Add Role'},
+//             {name: 'View All Departments'},
+//             {name: 'Add Department'},
+//             {name: 'Quit'}]
+//     }).then(async (answers/*employeeTracker.choices??*/) => {
+//         switch(answers.employeeTracker/*employeeTracker.choices??*/) {
+//             case 'View All Employees':
+//                 await viewEmployees();
+//                 break;
+//             case 'Add Employee':
+//                 await addEmployee();
+//                 break;
+//             case 'Update Employee Role':
+//                 await updateEmployeeRole();
+//                 break;
+//             case 'View All Roles':
+//                 await viewRoles();
+//                 break;
+//             case 'Add Role':
+//                 await addRole();
+//                 break;
+//             case 'View All Departments':
+//                 await viewDepartments();
+//                 break;
+//             case 'Add Department':
+//                 await addDepartment();
+//                 break;
+//             case 'Quit':
+//                 console.log('seeya later');
+//                 sqlConnection.end();
+//         }
+//     })
+// };
+
 
 // function addEmployee () {
 //     if (questions.choices === 'Add Employee') {
