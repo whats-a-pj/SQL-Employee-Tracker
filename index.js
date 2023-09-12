@@ -10,14 +10,14 @@ require('dotenv').config();
 //invokes console.table so that info prints to the tables??
 const cTable = require('console.table');
 
-//establishing mysql connection with .env
-const sqlConnection = mysql.createConnection({
-    host: '127.0.0.1',
-    port: 3306,
-    user: 'root',
-    password: process.env.DB_PASSWORD,
-    database: 'company_db',
-});
+// //establishing mysql connection with .env
+// const sqlConnection = mysql.createConnection({
+//     host: '127.0.0.1',
+//     port: 3306,
+//     user: 'root',
+//     password: process.env.DB_PASSWORD,
+//     database: 'company_db',
+// });
 
 //after running node index.js
 const homePage = [
@@ -70,22 +70,28 @@ const employeeAddQuestions = [
             message: 'What is the employees role?',
             choices: [
                 {
-                    name: 'Sales Lead'
+                    name: 'Sales Lead',
+                    value:'1'
                 },
                 {
-                    name: 'Jr. Sales'
+                    name: 'Jr. Sales',
+                    value: '2' //maybe just do these as INTs if error occurs
                 },
                 {
-                    name: 'Customer Service Representative'
+                    name: 'Customer Service Representative',
+                    value: '3'
                 },
                 {
-                    name: 'Packager/Stocker'
+                    name: 'Packager/Stocker',
+                    value: '4'
                 },
                 {
-                    name: 'Forklift Operator'
+                    name: 'Forklift Operator',
+                    value: '5'
                 },
                 {
-                    name: 'Lawyer'
+                    name: 'Lawyer',
+                    value: '6'
                 }]
         },
         {
@@ -94,16 +100,20 @@ const employeeAddQuestions = [
             message: 'Who will this employee report to?',
             choices: [
                 {
-                    name: 'John Doe'
+                    name: 'John Doe',
+                    value: '2'
                 },
                 {
-                    name: 'Jane Moe'
+                    name: 'Jane Moe',
+                    value: '3'
                 },
                 {
-                    name: 'Jim Roe'
+                    name: 'Jim Roe',
+                    value: '4'
                 },
                 {
-                    name: 'Julie Woe'
+                    name: 'Julie Woe',
+                    value: '5'
                 }]
         }];
 
@@ -132,7 +142,7 @@ const departmentQuestions = [
 const roleQuestions = [
         {
             type: 'input',
-            name: 'addRole',
+            name: 'nameRole',
             message: 'What is the name of the role?',
         },
         {
@@ -146,16 +156,20 @@ const roleQuestions = [
             message: 'Which department does this role belong to?',
             choices: [
                 { 
-                    name: 'Sales'
+                    name: 'Sales',
+                    value: '1'
                 },
                 {
-                    name: 'Service'
+                    name: 'Service',
+                    value: '2'
                 },
                 {
-                    name: 'Inventory'
+                    name: 'Inventory',
+                    value: '3'
                 },
                 {
-                    name: 'Legal'
+                    name: 'Legal',
+                    value: '4'
                 }]
         }];
 
@@ -178,6 +192,14 @@ console.log(`
 |..______________________________________________________________________..|
 `);
 inquirer.prompt(homePage).then(answers => {
+    //establishing mysql connection with .env
+const sqlConnection = mysql.createConnection({
+    host: '127.0.0.1',
+    port: 3306,
+    user: 'root',
+    password: process.env.DB_PASSWORD,
+    database: 'company_db',
+});
     if (answers.employeeTracker === "View All Employees") {
         console.log('hit or sumthin like that')
         sqlConnection.query(`SELECT * FROM employee`, (err, result) => {
@@ -207,7 +229,7 @@ inquirer.prompt(homePage).then(answers => {
         `)
         sqlConnection.end();
 } else {
-        addData(answers.employeeTracker);
+        addData(answers, sqlConnection);
     }
 });
 };
@@ -215,47 +237,54 @@ inquirer.prompt(homePage).then(answers => {
 //calls the function above when they type node index.js into terminal
 homePagePrompt();
 
-//todo pass answers.employeeTracker to addData()
-
-//todo deconstruct the [object Object] into its own STRING variable ${newEmployee} parse it?
-
-//todo finish updateRoleQuestions
-
 //if user wants to add data, this will run via the else statement in homePagePrompt()
-function addData(/*answers.employeeTracker*/) {
+function addData(answers, sqlConnection) {
 if (answers.employeeTracker === "Add Employee") {
     inquirer.prompt(employeeAddQuestions).then(answers => {
-        // var newEmployee = answers.employeeAddQuestions;
-    sqlConnection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (`/*${newEmployee}*/`)`, (err, result) => {
+    sqlConnection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ('${answers.employeeFirstName}', '${answers.employeeLastName}', '${answers.employeeRole}', '${answers.manager}');`, (err, result) => {
         if(err) {console.log(err)};
         console.table(result);
-        console.log(`Added new employee to database`);
+        console.log(`Added new employee to database, to exit: type ctrl + C to quit, and node index.js to start up again`);
+        homePagePrompt();
     });
 });
 } else if (answers.employeeTracker === "Add Role") {
     inquirer.prompt(roleQuestions).then(answers => {
-    sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES (`/*${answers}*/`)`, (err, result) => {
+    sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES ('${answers.nameRole}', '${answers.addSalary}', '${answers.roleDept}')`, (err, result) => {
         if(err) {console.log(err)};
         console.table(result);
-        console.log(`Added new role & salary to database`);
+        console.log(`Added new role & salary to database, to exit: type ctrl + C to quit, and node index.js to start up again`);
+        homePagePrompt();
     });
 });
 } else if (answers.employeeTracker === "Add Department") {
     inquirer.prompt(departmentQuestions).then(answers => {
-    sqlConnection.query(`INSERT INTO department (dept_name) VALUES (`/*${answers}*/`)`, (err, result) => {
+    sqlConnection.query(`INSERT INTO department (dept_name) VALUES ('${answers.addDept}')`, (err, result) => {
         if(err) {console.log(err)};
         console.table(result);
-        console.log(`Added new department to database`);
+        console.log(`Added new department to database, to exit: type ctrl + C to quit, and node index.js to start up again`);
+        homePagePrompt();
+    });
+});
+} else if (answers.employeeTracker === "Update Employee Role") {
+    inquirer.prompt(updateRoleQuestions).then(answers => {
+    sqlConnection.query(`UPDATE employee SET (role_id) WHERE employee(id) = ('${answers.updateRole}')`, (err, result) => {
+        if(err) {console.log(err)};
+        console.table(result);
+        console.log(`Updated employee role in database, to exit: type ctrl + C to quit, and node index.js to start up again`);
+        homePagePrompt();
     });
 });
 } else {
-    inquirer.prompt(updateRoleQuestions).then(answers => {
-    sqlConnection.query(`UPDATE employee SET (role_id) WHERE employee(id) = (`/*${answers}*/`)`, (err, result) => {
-        if(err) {console.log(err)};
-        console.table(result);
-        console.log(`Updated employee role in database`);
-    });
-});
+    console.log(`
+    ██████╗ ██╗   ██╗███████╗    ███████╗███████╗██╗     ██╗ ██████╗██╗ █████╗ ██╗
+    ██╔══██╗╚██╗ ██╔╝██╔════╝    ██╔════╝██╔════╝██║     ██║██╔════╝██║██╔══██╗██║
+    ██████╔╝ ╚████╔╝ █████╗      █████╗  █████╗  ██║     ██║██║     ██║███████║██║
+    ██╔══██╗  ╚██╔╝  ██╔══╝      ██╔══╝  ██╔══╝  ██║     ██║██║     ██║██╔══██║╚═╝
+    ██████╔╝   ██║   ███████╗    ██║     ███████╗███████╗██║╚██████╗██║██║  ██║██╗
+    ╚═════╝    ╚═╝   ╚══════╝    ╚═╝     ╚══════╝╚══════╝╚═╝ ╚═════╝╚═╝╚═╝  ╚═╝╚═╝
+    `)
+    sqlConnection.end();
 }
 };
 
