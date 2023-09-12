@@ -56,17 +56,17 @@ const homePage = [
 const employeeAddQuestions = [
         {
             type: 'input',
-            name: 'employee-first-name',
+            name: 'employeeFirstName',
             message: 'Please add a first name for your employee'
         },
         {
             type: 'input',
-            name: 'employee-last-name',
+            name: 'employeeLastName',
             message: 'Add their last name'
         },
         {
             type: 'list',
-            name: 'employee-role',
+            name: 'employeeRole',
             message: 'What is the employees role?',
             choices: [
                 {
@@ -111,7 +111,7 @@ const employeeAddQuestions = [
 const updateRoleQuestions = [
         {
             type: 'list',
-            name: 'update-role',
+            name: 'updateRole',
             message: 'Which employees role needs to be changed?',
             choices: [
                 {
@@ -124,7 +124,7 @@ const updateRoleQuestions = [
 const departmentQuestions = [
         {
             type: 'input',
-            name: 'add-dept',
+            name: 'addDept',
             message: 'What is the name of this department?',
         }];
 
@@ -132,17 +132,17 @@ const departmentQuestions = [
 const roleQuestions = [
         {
             type: 'input',
-            name: 'add-role',
+            name: 'addRole',
             message: 'What is the name of the role?',
         },
         {
             type: 'input',
-            name: 'add-salary',
+            name: 'addSalary',
             message: 'What is the salary for this role?',
         },
         {
             type: 'list',
-            name: 'role-dept',
+            name: 'roleDept',
             message: 'Which department does this role belong to?',
             choices: [
                 { 
@@ -159,6 +159,7 @@ const roleQuestions = [
                 }]
         }];
 
+//prompts user what they want to do when initially starting up the app
 function homePagePrompt() {
 console.log(`
 ..________________________________________________________________________..
@@ -182,111 +183,98 @@ inquirer.prompt(homePage).then(answers => {
         sqlConnection.query(`SELECT * FROM employee`, (err, result) => {
             if(err) {console.log(err)};
             console.table(result);
+            console.log('to exit: type ctrl + C to quit, and node index.js to start up again');
         });
     } else if (answers.employeeTracker === "View All Roles") {
         sqlConnection.query(`SELECT * FROM role`, (err, result) => {
             console.table(result);
+            console.log('to exit: type ctrl + C to quit, and node index.js to start up again');
         });
     } else if (answers.employeeTracker === "View All Departments") {
         sqlConnection.query(`SELECT * FROM department`, (err, result) => {
             if(err) {console.log(err)};
             console.table(result);
+            console.log('to exit: type ctrl + C to quit, and node index.js to start up again');
         });
-    } else {
+    } else if (answers.employeeTracker === "Quit") {
+        console.log(`
+        ██████╗ ██╗   ██╗███████╗    ███████╗███████╗██╗     ██╗ ██████╗██╗ █████╗ ██╗
+        ██╔══██╗╚██╗ ██╔╝██╔════╝    ██╔════╝██╔════╝██║     ██║██╔════╝██║██╔══██╗██║
+        ██████╔╝ ╚████╔╝ █████╗      █████╗  █████╗  ██║     ██║██║     ██║███████║██║
+        ██╔══██╗  ╚██╔╝  ██╔══╝      ██╔══╝  ██╔══╝  ██║     ██║██║     ██║██╔══██║╚═╝
+        ██████╔╝   ██║   ███████╗    ██║     ███████╗███████╗██║╚██████╗██║██║  ██║██╗
+        ╚═════╝    ╚═╝   ╚══════╝    ╚═╝     ╚══════╝╚══════╝╚═╝ ╚═════╝╚═╝╚═╝  ╚═╝╚═╝
+        `)
+        sqlConnection.end();
+} else {
         addData();
     }
 });
 };
 
-//todo create .then() on each instance of inquirer.prompt
-//todo make things async somehow :') i believe the .then is the async tho
-
+//calls the function above when they type node index.js into terminal
 homePagePrompt();
 
+//if user wants to add data, this will run via the else statement in homePagePrompt()
 function addData() {
-    if (answers.employeeTracker === "Add Employee") {
-        inquirer.prompt(employeeAddQuestions).then(answers => {
-        sqlConnection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`, (err, result) => {
-            if(err) {console.log(err)};
-            console.table(result);
-            console.log(`Added ${first_name} ${last_name} to database`);
-        });
+if (answers.employeeTracker === "Add Employee") {
+    inquirer.prompt(employeeAddQuestions).then(answers => {
+    sqlConnection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (${answers})`, (err, result) => {
+        if(err) {console.log(err)};
+        console.table(result);
+        console.log(`Added new employee to database`);
     });
-    } else if (answers.employeeTracker === "Add Role") {
-        inquirer.prompt(roleQuestions).then(answers => {
-        sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES (?, ?, ?)`, (err, result) => {
-            if(err) {console.log(err)};
-            console.table(result);
-            console.log(`Added ${role_title} & salary to database`);
-        });
+});
+} else if (answers.employeeTracker === "Add Role") {
+    inquirer.prompt(roleQuestions).then(answers => {
+    sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES (${answers})`, (err, result) => {
+        if(err) {console.log(err)};
+        console.table(result);
+        console.log(`Added new role & salary to database`);
     });
-    } else if (answers.employeeTracker === "Add Department") {
-        inquirer.prompt(departmentQuestions).then(answers => {
-        sqlConnection.query(`INSERT INTO department (dept_name) VALUES (?)`, (err, result) => {
-            if(err) {console.log(err)};
-            console.table(result);
-            console.log(`Added ${dept_name} to database`);
-        });
+});
+} else if (answers.employeeTracker === "Add Department") {
+    inquirer.prompt(departmentQuestions).then(answers => {
+    sqlConnection.query(`INSERT INTO department (dept_name) VALUES (${answers})`, (err, result) => {
+        if(err) {console.log(err)};
+        console.table(result);
+        console.log(`Added new department to database`);
     });
-    } else {
-        inquirer.prompt(updateRoleQuestions).then(answers => {
-        sqlConnection.query(`INSERT INTO employee (role_id) VALUES (?)`, (err, result) => {
-            if(err) {console.log(err)};
-            console.table(result);
-            console.log(`Updated employee role to ${role_title} in database`);
-        });
+});
+} else {
+    inquirer.prompt(updateRoleQuestions).then(answers => {
+    sqlConnection.query(`INSERT INTO employee (role_id) VALUES (${answers})`, (err, result) => {
+        if(err) {console.log(err)};
+        console.table(result);
+        console.log(`Updated employee role in database`);
     });
-    }
+});
+}
 };
-
 
 /**************************************************************************/
 
-
-// const homePage = () => {
-//     inquirer.createPromptModule({
-//         type: 'list',
-//         name: 'employeeTracker',
-//         message: 'What would you like to do?',
-//         choices: [
-//             {name: 'View All Employees'},
-//             {name: 'Add Employee'},
-//             {name: 'Update Employee Role'},
-//             {name: 'View All Roles'},
-//             {name: 'Add Role'},
-//             {name: 'View All Departments'},
-//             {name: 'Add Department'},
-//             {name: 'Quit'}]
-//     }).then(async (answers/*employeeTracker.choices??*/) => {
-//         switch(answers.employeeTracker/*employeeTracker.choices??*/) {
-//             case 'View All Employees':
-//                 await viewEmployees();
-//                 break;
-//             case 'Add Employee':
-//                 await addEmployee();
-//                 break;
-//             case 'Update Employee Role':
-//                 await updateEmployeeRole();
-//                 break;
-//             case 'View All Roles':
-//                 await viewRoles();
-//                 break;
-//             case 'Add Role':
-//                 await addRole();
-//                 break;
-//             case 'View All Departments':
-//                 await viewDepartments();
-//                 break;
-//             case 'Add Department':
-//                 await addDepartment();
-//                 break;
-//             case 'Quit':
-//                 console.log('seeya later');
-//                 sqlConnection.end();
-//         }
-//     })
+// function addData() {
+//     if (homePage.choices === "Add Employee") {
+//         inquirer.prompt(employeeAddQuestions).then(answers => {
+//             console.log(answers)
+//         }); //add .then()
+//         sqlConnection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`);
+//         console.log(`Added ${first_name} ${last_name} to database`);
+//     } else if (homePage.choices === "Add Role") {
+//         inquirer.prompt(roleQuestions); //add .then()
+//         sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES (?, ?, ?)`);
+//         console.log(`Added ${role_title} & salary to database`);
+//     } else if (homePage.choices === "Add Department") {
+//         inquirer.prompt(departmentQuestions); //add .then()
+//         sqlConnection.query(`INSERT INTO department (dept_name) VALUES (?)`);
+//         console.log(`Added ${dept_name} to database`);
+//     } else {
+//         inquirer.prompt(updateRoleQuestions); //add .then()
+//         sqlConnection.query(`INSERT INTO employee (role_id) VALUES (?)`);
+//         console.log(`Updated employee role to ${role_title} in database`);
+//     }
 // };
-
 
 // function addEmployee () {
 //     if (questions.choices === 'Add Employee') {
