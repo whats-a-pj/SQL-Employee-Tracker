@@ -278,8 +278,8 @@ const departmentOptions = depts.map(({id, dept_name }) => (
     name: dept_name,
     value: id
 }
-)); console.log(departmentOptions)
-    inquirer.prompt([{
+));
+return inquirer.prompt([{
         type: 'input',
         name: 'nameRole',
         message: 'What is the name of the role?',
@@ -303,7 +303,11 @@ const departmentOptions = depts.map(({id, dept_name }) => (
     });
 });
 } else if (answers.employeeTracker === "Add Department") {
-    inquirer.prompt(departmentQuestions).then(answers => {
+    return inquirer.prompt([{
+        type: 'input',
+        name: 'addDept',
+        message: 'What is the name of this department?',
+    }]).then(answers => {
     sqlConnection.query(`INSERT INTO department (dept_name) VALUES ('${answers.addDept}')`, (err, result) => {
         if(err) {console.log(err)};
         console.table(result);
@@ -311,10 +315,39 @@ const departmentOptions = depts.map(({id, dept_name }) => (
         homePagePrompt();
     });
 });
-} else if (answers.employeeTracker === "Update Employee Role") {
-    inquirer.prompt(updateRoleQuestions).then(answers => {
-        console.log(answers.updateRole)
-    sqlConnection.query(`UPDATE employee SET role_id = ? WHERE id = ('${answers.updateRole}')`, (err, result) => {
+//todo check if this is correct
+} else if (answers.employeeTracker === "Update Employee Role") {sqlConnection.promise().query(`SELECT * FROM employee`).then(([empRole]) => {
+    console.log(empRole)
+    const employeeOptions = empRole.map(({nameRole, first_name, last_name }) => (
+    {
+        name: nameRole,
+        value: `${first_name} ${last_name}`
+    }
+    ));
+    return inquirer.prompt([
+        {
+            type: 'list',
+            name: 'chooseEmployee',
+            message: 'Which employees role needs to be changed?',
+            choices: employeeOptions
+        }
+.then(([empRole]) => {
+    console.log(empRole)
+    const roleOptions = empRole.map(({nameRole, first_name, last_name }) => (
+    {
+        name: nameRole,
+        value: `${first_name} ${last_name}`
+    }
+    ));
+    return inquirer.prompt([
+        {
+            type: 'list',
+            name: 'updateRole',
+            message: 'Which new role is this employee taking on?',
+            choices: empRole
+        }])}).then(answers => {
+        console.log(answers)
+    sqlConnection.query(`UPDATE employee SET role_id = '${answers.updateRole.value}' WHERE id = ('${answers.updateRole}')`, (err, result) => {
         if(err) {console.log(err)};
         console.table(result);
         console.log(`Updated employee role in database, to exit: type ctrl + C to quit, and node index.js to start up again`);
@@ -335,39 +368,3 @@ const departmentOptions = depts.map(({id, dept_name }) => (
 };
 
 /**************************************************************************/
-
-// function addData() {
-//     if (homePage.choices === "Add Employee") {
-//         inquirer.prompt(employeeAddQuestions).then(answers => {
-//             console.log(answers)
-//         }); //add .then()
-//         sqlConnection.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`);
-//         console.log(`Added ${first_name} ${last_name} to database`);
-//     } else if (homePage.choices === "Add Role") {
-//         inquirer.prompt(roleQuestions); //add .then()
-//         sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES (?, ?, ?)`);
-//         console.log(`Added ${role_title} & salary to database`);
-//     } else if (homePage.choices === "Add Department") {
-//         inquirer.prompt(departmentQuestions); //add .then()
-//         sqlConnection.query(`INSERT INTO department (dept_name) VALUES (?)`);
-//         console.log(`Added ${dept_name} to database`);
-//     } else {
-//         inquirer.prompt(updateRoleQuestions); //add .then()
-//         sqlConnection.query(`INSERT INTO employee (role_id) VALUES (?)`);
-//         console.log(`Updated employee role to ${role_title} in database`);
-//     }
-// };
-
-// function addEmployee () {
-//     if (questions.choices === 'Add Employee') {
-//         db.query(SELECT * FROM employee)
-//         console.table('')
-//     }
-// }
-
-// inquirer.prompt(questions).then(answers => {
-//     if (answers.includes('Add Role') {
-//         inquirer.prompt(addToDB) 'Type name of role'
-//         INSERT INTO role_title 
-//     })
-// })
