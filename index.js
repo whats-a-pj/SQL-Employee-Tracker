@@ -63,30 +63,30 @@ const employeeAddQuestions = [
             name: 'employeeRole',
             message: 'What is the employees role?',
             choices: [
-                // {
-                //     name: 'Sales Lead',
-                //     value:'1'
-                // },
-                // {
-                //     name: 'Jr. Sales',
-                //     value: '2'
-                // },
-                // {
-                //     name: 'Customer Service Representative',
-                //     value: '3'
-                // },
-                // {
-                //     name: 'Packager/Stocker',
-                //     value: '4'
-                // },
-                // {
-                //     name: 'Forklift Operator',
-                //     value: '5'
-                // },
-                // {
-                //     name: 'Lawyer',
-                //     value: '6'
-                // }
+                {
+                    name: 'Sales Lead',
+                    value:'1'
+                },
+                {
+                    name: 'Jr. Sales',
+                    value: '2'
+                },
+                {
+                    name: 'Customer Service Representative',
+                    value: '3'
+                },
+                {
+                    name: 'Packager/Stocker',
+                    value: '4'
+                },
+                {
+                    name: 'Forklift Operator',
+                    value: '5'
+                },
+                {
+                    name: 'Lawyer',
+                    value: '6'
+                }
             ]
         },
         {
@@ -163,22 +163,22 @@ const roleQuestions = [
             name: 'roleDept',
             message: 'Which department does this role belong to?',
             choices: [
-                // { 
-                //     name: 'Sales',
-                //     value: '1'
-                // },
-                // {
-                //     name: 'Service',
-                //     value: '2'
-                // },
-                // {
-                //     name: 'Inventory',
-                //     value: '3'
-                // },
-                // {
-                //     name: 'Legal',
-                //     value: '4'
-                // }
+                { 
+                    name: 'Sales',
+                    value: '1'
+                },
+                {
+                    name: 'Service',
+                    value: '2'
+                },
+                {
+                    name: 'Inventory',
+                    value: '3'
+                },
+                {
+                    name: 'Legal',
+                    value: '4'
+                }
             ]
         }];
 /***********************************************************/
@@ -272,8 +272,29 @@ if (answers.employeeTracker === "Add Employee") {
         homePagePrompt();
     });
 });
-} else if (answers.employeeTracker === "Add Role") {
-    inquirer.prompt(roleQuestions).then(answers => {
+} else if (answers.employeeTracker === "Add Role") {sqlConnection.promise().query(`SELECT * FROM department`).then(([depts]) => {
+const departmentOptions = depts.map(({id, dept_name }) => (
+{
+    name: dept_name,
+    value: id
+}
+)); console.log(departmentOptions)
+    inquirer.prompt([{
+        type: 'input',
+        name: 'nameRole',
+        message: 'What is the name of the role?',
+    },
+    {
+        type: 'input',
+        name: 'addSalary',
+        message: 'What is the salary for this role?',
+    },
+    {
+        type: 'list',
+        name: 'roleDept',
+        message: 'Which department does this role belong to?',
+        choices: departmentOptions
+    }])}).then(answers => {
     sqlConnection.query(`INSERT INTO role (role_title, salary, department_id) VALUES ('${answers.nameRole}', '${answers.addSalary}', '${answers.roleDept}')`, (err, result) => {
         if(err) {console.log(err)};
         console.table(result);
