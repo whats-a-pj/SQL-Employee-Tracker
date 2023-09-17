@@ -32,7 +32,11 @@ Overall this is just a general database and if you can clone the repo you can ch
 
 Follow this link for a walkthrough video on this application's functionality:
 
---insert link here--
+<details> <summary> WALKTHROUGH VIDEO </summary>
+
+https://drive.google.com/file/d/1YRFa6lu5FyLOHFJpKROIMTWAQk9N1mo4/view?usp=sharing
+
+</details>
 
 ## Troubleshooting
 * Make sure you have the correct packages installed and your server is connected/listening
@@ -86,7 +90,7 @@ https://dev.mysql.com/doc/refman/8.0/en/create-table-foreign-keys.html
 
 https://patorjk.com/software/taag/#p=display&f=Graffiti&t=ASCII%20GENERATOR
 
-I had help from CJ Sanders and a few different askBCS helpers to complete this assignment- as always, turns out I just had to add one line of code to get my initial set of questions working
+I had help from CJ Sanders(TA), Jacek Hacking(TA) and a few different askBCS helpers to complete this assignment- as always, turns out I just had to add one line of code to get my initial set of questions working- but as I went along without using async/await functions, this assignment got much harder, this was an especially tough assignment as we didn't go over async/await and promises enough for me to understand how to use it. This application is a callback hell.
 
 Had a tutor session with Juno Nguyen on 9/12 to study up on SQL and inquirer and run through my addData() issues so that user's can properly add to their database as opposed to only being able to view the data
 
