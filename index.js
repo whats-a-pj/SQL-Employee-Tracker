@@ -228,6 +228,7 @@ const sqlConnection = mysql.createConnection({
         });
     } else if (answers.employeeTracker === "View All Roles") {
         sqlConnection.query(`SELECT * FROM role`, (err, result) => {
+            console.log()
             console.table(result);
             console.log('to exit: type ctrl + C to quit, and node index.js to start up again');
             homePagePrompt();
@@ -316,26 +317,29 @@ return inquirer.prompt([{
     });
 });
 } else if (answers.employeeTracker === "Update Employee Role") {sqlConnection.promise().query(`SELECT * FROM employee`).then(([empRole]) => {
-    console.log(empRole)
-    const employeeOptions = empRole.map(({nameRole, first_name, last_name }) => (
+    // console.log(empRole)
+    const employeeChoices = empRole.map(({id, first_name, last_name }) => (
     {
-        name: nameRole,
-        value: `${first_name} ${last_name}`
+        name: `${first_name} ${last_name}`,
+        value: id
     }
-    ))});
-    return inquirer.prompt([
+    ));
+    inquirer.prompt([
         {
             type: 'list',
             name: 'chooseEmployee',
             message: 'Which employees role needs to be changed?',
-            choices: employeeOptions
-        }])
-.then(([empRole]) => {
-    console.log(empRole)
-    const roleOptions = empRole.map(({nameRole, first_name, last_name }) => (
+            choices: employeeChoices
+        }])}).then(answers => {
+            sqlConnection.promise().query(`SELECT ${answers} FROM employee`)
+        })
+sqlConnection.promise().query(`SELECT * FROM role`)
+.then(([allRoles]) => {
+    //console.log(allRoles)
+    const roleOptions = allRoles.map(({id, role_title }) => (
     {
-        name: nameRole,
-        value: `${first_name} ${last_name}`
+        name: `${role_title}`,
+        value: id
     }
     ));
     return inquirer.prompt([
@@ -343,7 +347,7 @@ return inquirer.prompt([{
             type: 'list',
             name: 'updateRole',
             message: 'Which new role is this employee taking on?',
-            choices: empRole
+            choices: roleOptions
         }])}).then(answers => {
         console.log(answers)
     sqlConnection.query(`UPDATE employee SET role_id = '${answers.updateRole.value}' WHERE id = ('${answers.updateRole}')`, (err, result) => {
@@ -367,4 +371,76 @@ return inquirer.prompt([{
 };
 
 /**************************************************************************/
+//lines 319-358
+// sqlConnection.promise().query(`SELECT * FROM employee`).then(([empRole]) => {
+//     // console.log(empRole)
+//     const employeeChoices = empRole.map(({id, first_name, last_name }) => (
+//     {
+//         name: `${first_name} ${last_name}`,
+//         value: id
+//     }
+//     ));
+//     inquirer.prompt([
+//         {
+//             type: 'list',
+//             name: 'chooseEmployee',
+//             message: 'Which employees role needs to be changed?',
+//             choices: employeeChoices
+//         }])})
+//         //todo user cannot choose their employee- just skips to this question- add a .then for after user chooses and run these questions
+// sqlConnection.promise().query(`SELECT * FROM role`)
+// .then(([allRoles]) => {
+//     //console.log(allRoles)
+//     const roleOptions = allRoles.map(({id, role_title }) => (
+//     {
+//         name: `${role_title}`,
+//         value: id
+//     }
+//     ));
+//     return inquirer.prompt([
+//         {
+//             type: 'list',
+//             name: 'updateRole',
+//             message: 'Which new role is this employee taking on?',
+//             choices: roleOptions
+//         }])}).then(answers => {
+//         console.log(answers)
+//     sqlConnection.query(`UPDATE employee SET role_id = '${answers.updateRole.value}' WHERE id = ('${answers.updateRole}')`, (err, result) => {
+//         if(err) {console.log(err)};
+//         console.table(result);
+//         console.log(`Updated employee role in database, to exit: type ctrl + C to quit, and node index.js to start up again`);
+//         homePagePrompt();
+//     });
+// });
 
+
+//starting at line 334 i got this error-
+//USER CANNOT CHOOSE AN EMPLOYEE OR THEIR NEW ROLE- ERROR MESSAGE:
+/*
+
+/Users/pjrasmussen/bootcamp/Assignments/week-12/SQL-Employee-Tracker/index.js:333
+.then(([empRole]) => {
+      ^
+
+TypeError: undefined is not iterable (cannot read property Symbol(Symbol.iterator))
+    at /Users/pjrasmussen/bootcamp/Assignments/week-12/SQL-Employee-Tracker/index.js:345:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+
+*/
+
+
+// } else if (answers.employeeTracker === "Update Employee Role") {sqlConnection.promise().query(`SELECT * FROM employee`).then(([empRole]) => {
+//     console.log(empRole)
+//     const employeeOptions = empRole.map(({nameRole, first_name, last_name }) => (
+//     {
+//         name: nameRole,
+//         value: `${first_name} ${last_name}`
+//     }
+//     ))});
+//     return inquirer.prompt([
+//         {
+//             type: 'list',
+//             name: 'chooseEmployee',
+//             message: 'Which employees role needs to be changed?',
+//             choices: employeeOptions
+//         }])
